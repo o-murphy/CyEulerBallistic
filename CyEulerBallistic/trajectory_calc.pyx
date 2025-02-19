@@ -40,6 +40,7 @@ from py_ballisticcalc.logger import logger
 from py_ballisticcalc.unit import Angular, Unit, Velocity, Distance, Energy, Weight
 from py_ballisticcalc.exceptions import ZeroFindingError, RangeError
 from py_ballisticcalc.constants import cMaxWindDistanceFeet
+from bisect import bisect_left
 
 
 __all__ = (
@@ -51,17 +52,16 @@ __all__ = (
 cdef class _TrajectoryDataFilter:
     cdef:
         int filter, current_flag, seen_zero
-        int current_item, ranges_length
-        double previous_mach, previous_time, next_range_distance, time_step, look_angle
+        int current_item
+        double previous_mach, previous_time, next_range_distance, range_step, time_step, look_angle
 
     def __cinit__(_TrajectoryDataFilter self,
-                  int filter_flags, int ranges_length, double time_step = 0.0) -> None:
+                  int filter_flags, double range_step, double time_step = 0.0) -> None:
         self.filter = filter_flags
         self.current_flag = CTrajFlag.NONE
         self.seen_zero = CTrajFlag.NONE
         self.time_step = time_step
-        self.current_item = 0
-        self.ranges_length = ranges_length
+        self.range_step = range_step
         self.previous_mach = 0.0
         self.previous_time = 0.0
         self.next_range_distance = 0.0
@@ -81,26 +81,21 @@ cdef class _TrajectoryDataFilter:
                             CVector range_vector,
                             double velocity,
                             double mach,
-                            double step,
                             double time,
                             ):
         self.check_zero_crossing(range_vector)
         self.check_mach_crossing(velocity, mach)
-        if self.check_next_range(range_vector.x, step):
+        if self.check_next_range(range_vector.x, self.range_step):
             self.previous_time = time
         elif self.time_step > 0:
             self.check_next_time(time)
         return (self.current_flag & self.filter) != 0
-
-    cdef bint should_break(_TrajectoryDataFilter self):
-        return self.current_item == self.ranges_length
 
     cdef bint check_next_range(_TrajectoryDataFilter self, double next_range, double step):
         # Next range check
         if next_range >= self.next_range_distance:
             self.current_flag |= CTrajFlag.RANGE
             self.next_range_distance += step
-            self.current_item += 1
             return True
         return False
 
@@ -259,9 +254,10 @@ cdef class EulerTrajectoryCalc:
             atmo=Atmosphere_t(
                 _t0=shot_info.atmo._t0,
                 _a0=shot_info.atmo._a0,
-                _p0=shot_info.atmo.pressure.get_in(Unit.InHg),
-                _mach1=shot_info.atmo._mach1,
+                _p0=shot_info.atmo._p0,
+                _mach=shot_info.atmo._mach,
                 density_ratio=shot_info.atmo.density_ratio,
+                cLowestTempC=shot_info.atmo.cLowestTempC,
             )
         )
         self.__shot.muzzle_velocity = shot_info.ammo.get_velocity_for_temp(shot_info.atmo.powder_temp)._fps
@@ -313,7 +309,7 @@ cdef class EulerTrajectoryCalc:
 
 
     cdef list[object] _integrate(EulerTrajectoryCalc self,
-                          double maximum_range, double step, int filter_flags, double time_step = 0.0):
+                          double maximum_range, double record_step, int filter_flags, double time_step = 0.0):
         cdef:
             double velocity, delta_time
             double density_factor = .0
@@ -352,16 +348,17 @@ cdef class EulerTrajectoryCalc:
         velocity_vector = mul_c(&_dir_vector, velocity)
         # endregion
 
+        min_step = min(calc_step, record_step)
         # With non-zero look_angle, rounding can suggest multiple adjacent zero-crossings
         data_filter = _TrajectoryDataFilter(filter_flags=filter_flags,
-                                            ranges_length=<int> ((maximum_range / step) + 1),
+                                            range_step=record_step,
                                             time_step=time_step)
         data_filter.setup_seen_zero(range_vector.y, self.__shot.barrel_elevation, self.__shot.look_angle)
 
         #region Trajectory Loop
         warnings.simplefilter("once")  # used to avoid multiple warnings in a loop
         cdef int it = 0
-        while range_vector.x <= maximum_range + calc_step:
+        while range_vector.x <= maximum_range + min_step:
             it += 1
             data_filter.current_flag = CTrajFlag.NONE
 
@@ -376,18 +373,16 @@ cdef class EulerTrajectoryCalc:
             if filter_flags:
 
                 # Record TrajectoryData row
-                # if data_filter.should_record(range_vector, velocity, mach, step, self.look_angle, time):
-                if data_filter.should_record(range_vector, velocity, mach, step, time):
+                # if data_filter.should_record(range_vector, velocity, mach, record_step, self.look_angle, time):
+                if data_filter.should_record(range_vector, velocity, mach, time):
                     ranges.append(create_trajectory_row(
                         time, range_vector, velocity_vector,
                         velocity, mach, cy_spin_drift(&self.__shot, time), self.__shot.look_angle,
                         density_factor, drag, self.__shot.weight, data_filter.current_flag
                     ))
-                    if data_filter.should_break():
-                        break
 
             #region Ballistic calculation step
-            # use just cdef methods to
+            # use just cdef methods to maximize speed
 
             velocity_adjusted = sub(&velocity_vector, &wind_vector)
             velocity = mag(&velocity_adjusted)
@@ -411,6 +406,12 @@ cdef class EulerTrajectoryCalc:
                     or range_vector.y < _cMaximumDrop
                     or self.__shot.alt0 + range_vector.y < _cMinimumAltitude
             ):
+                ranges.append(create_trajectory_row(
+                    time, range_vector, velocity_vector,
+                    velocity, mach, cy_spin_drift(&self.__shot, time), self.__shot.look_angle,
+                    density_factor, drag, self.__shot.weight, data_filter.current_flag
+                ))
+
                 if velocity < _cMinimumVelocity:
                     reason = RangeError.MinimumVelocityReached
                 elif range_vector.y < _cMaximumDrop:
@@ -422,7 +423,7 @@ cdef class EulerTrajectoryCalc:
 
         #endregion
         # If filter_flags == 0 then all we want is the ending value
-        if not filter_flags:
+        if len(ranges)==0:
             ranges.append(create_trajectory_row(
                 time, range_vector, velocity_vector,
                 velocity, mach, cy_spin_drift(&self.__shot, time), self.__shot.look_angle,
