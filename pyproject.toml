@@ -52,4 +52,5 @@ include = ["CyEulerBallistic*"]
 dev = ['cython', 'build', 'setuptools', 'cibuildwheel', 'pytest', 'mypy', 'pylint']
 
 [tool.cibuildwheel]
-before-all = "uname -a"
+# Use uv and build
+build-frontend = "build[uv]"
