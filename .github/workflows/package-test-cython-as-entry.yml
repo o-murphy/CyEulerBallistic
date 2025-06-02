@@ -42,6 +42,7 @@ jobs:
       run: |      
         uv pip uninstall py_ballisticcalc
         cd py-ballisticcalc
+        git fetch origin
         git checkout engine_entry_point
         uv pip install -e .[dev]
         cd ../
