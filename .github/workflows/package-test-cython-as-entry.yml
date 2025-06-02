@@ -21,6 +21,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: 'true'
+        submodules-depth: 0
 
     - name: Install uv and set the python version ${{ matrix.python-version }}
       uses: astral-sh/setup-uv@v5
@@ -38,8 +41,8 @@ jobs:
     - name: Install from pr #170
       run: |      
         uv pip uninstall py_ballisticcalc
-        git clone -b engine_entry_point https://github.com/o-murphy/py-ballisticcalc.git
         cd py-ballisticcalc
+        git checkout engine_entry_point
         uv pip install -e .[dev]
         cd ../
 
