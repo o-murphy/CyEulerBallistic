@@ -21,8 +21,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-      with:
-        submodules: 'true'
+#      with:
+#        submodules: 'true'
 
     - name: Install uv and set the python version ${{ matrix.python-version }}
       uses: astral-sh/setup-uv@v5
