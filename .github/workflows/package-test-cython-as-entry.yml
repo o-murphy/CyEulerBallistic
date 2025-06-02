@@ -23,7 +23,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: 'true'
-        submodules-depth: 0
 
     - name: Install uv and set the python version ${{ matrix.python-version }}
       uses: astral-sh/setup-uv@v5
@@ -42,7 +41,7 @@ jobs:
       run: |      
         uv pip uninstall py_ballisticcalc
         cd py-ballisticcalc
-        git fetch origin
+        git fetch --all
         git checkout origin/engine_entry_point
         uv pip install -e .[dev]
         cd ../
