@@ -1,8 +1,18 @@
 # type: ignore
-from py_ballisticcalc.unit import Angular, Distance, Energy, Velocity, Weight
 from typing_extensions import NamedTuple, Union, Tuple
 
+from py_ballisticcalc.unit import Angular, Distance, Energy, Velocity, Weight, Vector
+
 __all__ = ['TrajectoryData']
+
+
+class BaseTrajData(NamedTuple):
+    """Minimal data for one point in ballistic trajectory"""
+    time: float
+    position: Vector
+    velocity: Vector
+    mach: float
+
 
 class TrajectoryData(NamedTuple):
     __slots__: Tuple[str, ...]
@@ -24,5 +34,7 @@ class TrajectoryData(NamedTuple):
     energy: Energy
     ogw: Weight
     flag: Union[int]
+
     def formatted(self) -> tuple[str, ...]: ...
+
     def in_def_units(self) -> tuple[float, ...]: ...

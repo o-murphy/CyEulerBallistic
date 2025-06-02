@@ -35,6 +35,9 @@ classifiers = [
 ]
 dependencies = ["py_ballisticcalc==2.1.0b6"]
 
+[project.entry-points.py_ballisticcalc]
+engine = "CyEulerBallistic.trajectory_calc:EulerTrajectoryCalc"
+
 [project.urls]
 "Homepage" = "https://github.com/o-murphy/CyEulerBallistic"
 "Bug Reports" = "https://github.com/o-murphy/CyEulerBallistic/issues"
