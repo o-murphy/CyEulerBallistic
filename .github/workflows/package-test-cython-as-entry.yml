@@ -40,9 +40,8 @@ jobs:
     - name: Install from pr #170
       run: |      
         uv pip uninstall py_ballisticcalc
+        git clone -b engine_entry_point https://github.com/o-murphy/py-ballisticcalc.git
         cd py-ballisticcalc
-        git fetch --all
-        git checkout origin/engine_entry_point
         uv pip install -e .[dev]
         cd ../
 
