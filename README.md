@@ -9,6 +9,8 @@ The fork of py_ballisticcalc.exts that can be used as side-package
 [![versions]][sources]
 [![Made in Ukraine]][SWUBadge]
 
+[![pytest]][pytest]
+
 [sources]:
 https://github.com/o-murphy/CyEulerBallistic
 [license]:
@@ -21,6 +23,8 @@ https://img.shields.io/pypi/v/CyEulerBallistic?style=flat-square&logo=pypi
 https://pypi.org/project/CyEulerBallistic/
 [coverage]:
 coverage.svg
+[pytest]:
+https://github.com/o-murphy/CyEulerBallistic/actions/workflows/pytest.yml
 [downloads]:
 https://img.shields.io/pepy/dt/CyEulerBallistic?style=flat-square
 [downloads/month]:
