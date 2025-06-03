@@ -10,7 +10,32 @@ updates:
     schedule:
       interval: "weekly"
 
-    groups :
-     python-packages :
-       patterns :
-        - " * "
+    # Define a group for general Python packages
+    groups:
+      python-packages:
+        patterns:
+          - "*" # This pattern should match all packages by default
+
+  # New entry specifically for py-ballisticcalc to track patch versions
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly" # You can adjust this if you want different schedules
+
+    # Target only py-ballisticcalc
+    allow:
+      - dependency-name: "py-ballisticcalc"
+
+    # Specify patch versioning strategy
+    versioning-strategy: "lockfile-only" # This tells Dependabot to only respect changes in the lockfile (e.g., Poetry.lock, Pipfile.lock) for versioning.
+                                       # For strict patch updates without a lockfile, you'd combine with 'ignore' or filter.
+
+    # To specifically target patch updates, you'll generally use 'ignore'
+    # or ensure your project uses a lockfile (like poetry.lock or Pipfile.lock).
+    # Dependabot's 'versioning-strategy' typically works with the lockfile.
+    # If not using a lockfile, 'ignore' rules are more explicit for patch-only updates.
+
+    ignore:
+      # Ignore minor and major version updates for py-ballisticcalc
+      - dependency-name: "py-ballisticcalc"
+        update-types: ["major", "minor"]
