@@ -2,6 +2,38 @@
 LGPL library for small arms ballistic calculations based on point-mass (3 DoF) plus spin drift.
 The fork of py_ballisticcalc.exts that can be used as side-package
 
+[![license]][LGPL-3]
+[![pypi]][PyPiUrl]
+[![downloads]][pepy]
+[![downloads/month]][pepy]
+[![versions]][sources]
+[![Made in Ukraine]][SWUBadge]
+
+[sources]:
+https://github.com/o-murphy/CyEulerBallistic
+[license]:
+https://img.shields.io/github/license/o-murphy/CyEulerBallistic?style=flat-square
+[LGPL-3]:
+https://opensource.org/licenses/LGPL-3.0-only
+[pypi]:
+https://img.shields.io/pypi/v/CyEulerBallistic?style=flat-square&logo=pypi
+[PyPiUrl]:
+https://pypi.org/project/CyEulerBallistic/
+[coverage]:
+coverage.svg
+[downloads]:
+https://img.shields.io/pepy/dt/CyEulerBallistic?style=flat-square
+[downloads/month]:
+https://static.pepy.tech/personalized-badge/CyEulerBallistic?style=flat-square&period=month&units=abbreviation&left_color=grey&right_color=blue&left_text=downloads%2Fmonth
+[pepy]:
+https://pepy.tech/project/CyEulerBallistic
+[versions]:
+https://img.shields.io/pypi/pyversions/CyEulerBallistic?style=flat-square
+[Made in Ukraine]:
+https://img.shields.io/badge/made_in-Ukraine-ffd700.svg?labelColor=0057b7&style=flat-square
+[SWUBadge]:
+https://stand-with-ukraine.pp.ua
+
 ### Table of contents
 * **[Installation](#installation)**
   * [Latest stable](#latest-stable-release-from-pypi)
@@ -15,10 +47,17 @@ The fork of py_ballisticcalc.exts that can be used as side-package
 
 ```shell
 pip install CyEulerBallistic
+# or 
+uv add CyEulerBallistic
 ```
 
 # Usage
-**See [Original README](Example.ipynb) for detailed illustrations of all features and usage.**
+Initialize CyEulerBallistic engine
+```shell
+from py_ballisticcalc import Calculator
+calc = Calculator(_engine="CyEulerBallistic")
+```
+**Follow [Original README](Example.ipynb) for detailed illustrations of all features and usage.**
 
 
 # About project
