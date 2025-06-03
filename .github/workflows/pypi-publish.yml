@@ -18,19 +18,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv and set the python version "3.12"
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Install project
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install build cibuildwheel
+          uv sync --dev
 
       - name: Build binary Python package
         run: |
-          python -m build --sdist --outdir ./dist
+          uv build --sdist --out-dir ./dist
           cibuildwheel --output-dir ./dist
 
       - name: Upload artifacts
@@ -77,7 +76,6 @@ jobs:
           cp ./dist-windows/* dist/ || true
           cp ./dist-macos-13/* dist/ || true
           cp ./dist-macos-14/* dist/ || true
-
 
       - name: List ./dist
         run: ls ./dist
