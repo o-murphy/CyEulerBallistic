@@ -51,9 +51,19 @@ py-modules = ["CyEulerBallistic"]
 where = ["."]
 include = ["CyEulerBallistic*"]
 
+# deprecated, use `uv sync` with `dev` dependency group
 [project.optional-dependencies]
-dev = ['cython', 'build', 'setuptools', 'cibuildwheel', 'pytest', 'mypy', 'pylint']
+dev = ['cython', 'build', 'setuptools', 'cibuildwheel', 'pytest']
 
 [tool.cibuildwheel]
 # Use uv and build
 build-frontend = "build[uv]"
+
+[dependency-groups]
+dev = [
+    "build>=1.2.2.post1",
+    "cibuildwheel>=2.23.3",
+    "cython>=3.1.1",
+    "pytest>=8.3.5",
+    "setuptools>=80.9.0",
+]
