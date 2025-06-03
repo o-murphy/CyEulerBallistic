@@ -1,12 +1,22 @@
+from CyEulerBallistic.vector cimport CVector
+
 cdef enum CTrajFlag:
     NONE = 0
     ZERO_UP = 1
     ZERO_DOWN = 2
+    ZERO = ZERO_UP | ZERO_DOWN
     MACH = 4
     RANGE = 8
-    DANGER = 16
-    ZERO = ZERO_UP | ZERO_DOWN
-    ALL = RANGE | ZERO_UP | ZERO_DOWN | MACH | DANGER
+    APEX = 16
+    ALL = RANGE | ZERO_UP | ZERO_DOWN | MACH | APEX
+
+
+cdef class BaseTrajData:
+    cdef:
+        readonly double time
+        readonly CVector position
+        readonly CVector velocity
+        readonly double mach
 
 
 cdef class TrajectoryData:
