@@ -33,7 +33,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: Implementation :: CPython",
 ]
-dependencies = ["py_ballisticcalc==2.1.0b6"]
+dependencies = ["py_ballisticcalc==2.1.1b1"]
 
 [project.entry-points.py_ballisticcalc]
 engine = "CyEulerBallistic.trajectory_calc:EulerTrajectoryCalc"
