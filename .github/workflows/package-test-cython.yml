@@ -52,7 +52,7 @@ jobs:
         echo "Cloning py-ballisticcalc with tag: $PYBC_VERSION"
     
         # Clone the specific tag (version) using the obtained version
-        git clone --branch "$PYBC_VERSION" --single-branch https://github.com/o-murphy/py-ballisticcalc.git py-ballisticcalc
+        git clone --branch "v$PYBC_VERSION" --single-branch https://github.com/o-murphy/py-ballisticcalc.git py-ballisticcalc
     
         # Change into the cloned directory
         cd py-ballisticcalc
