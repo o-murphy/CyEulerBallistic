@@ -50,7 +50,6 @@ jobs:
     - name: Run py-ballisticcalc tests with --engine CyEulerBallistic
       run: |
         cd py-ballisticcalc
-        pytest tests -v --engine CyEulerBallistic
+        pytest ./tests -v --engine CyEulerBallistic
         cd ../
       shell: bash
-      if: runner.os != 'Windows'
